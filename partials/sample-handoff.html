@@ -1,0 +1,11 @@
+<div style="border-left:3px solid #f87171; padding:.5rem .7rem; background:rgba(248,113,113,.08); border-radius:8px;">
+  <span style="color:#fca5a5;">🔀 handoff</span> &nbsp;Coordinator hand-off → web search agent for
+  <em>“It was first demonstrated in December 1947.”</em><br>
+  <span style="color:#94a3b8;">cost: +250 tok overhead · +450 tok web-search · +1,200 tok context replay = <b>+1,900 input tokens</b> · +1 round trip</span>
+</div>
+<div style="margin-top:.5rem; border-left:3px solid #34d399; padding:.5rem .7rem; background:rgba(52,211,153,.08); border-radius:8px;">
+  <span style="color:#6ee7b7;">✅ verify_fact</span> &nbsp;local bounded lookup for the same trivial fact
+  <em>“date:transistor-demo”</em> → <b>1947</b><br>
+  <span style="color:#94a3b8;">cost: +70 tok only · <b>no round trip</b> · resolved in-tool</span>
+</div>
+<div style="margin-top:.5rem; color:#a7f3d0;">💡 Same fact, <b>27× fewer input tokens</b> with the scoped tool.</div>

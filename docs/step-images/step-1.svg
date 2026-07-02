@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="Inter, Segoe UI, sans-serif" role="img" aria-label="Step 1 — typed errors as architectural seams">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08172a"/><stop offset="1" stop-color="#0c1e2e"/>
+    </linearGradient>
+    <marker id="ar1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="960" height="600" fill="url(#bg1)"/>
+  <text x="480" y="48" text-anchor="middle" font-size="26" font-weight="800" fill="#f8fafc">🧩 STEP 1 · Typed Errors = Architectural Seams</text>
+  <text x="480" y="76" text-anchor="middle" font-size="15" fill="#94a3b8">HOW callers branch on failure · WHY structured escalation prevents overload</text>
+
+  <!-- Dependency chain -->
+  <g font-size="13">
+    <rect x="40"  y="120" width="150" height="56" rx="12" fill="#0f2236" stroke="#38bdf8"/>
+    <text x="115" y="145" text-anchor="middle" fill="#7dd3fc" font-weight="700">domain.js</text>
+    <text x="115" y="164" text-anchor="middle" fill="#94a3b8">entities · workload</text>
+    <rect x="210" y="120" width="170" height="56" rx="12" fill="#0f2236" stroke="#38bdf8"/>
+    <text x="295" y="145" text-anchor="middle" fill="#7dd3fc" font-weight="700">infrastructure.js</text>
+    <text x="295" y="164" text-anchor="middle" fill="#94a3b8">FactDB · WebSearch · Errors</text>
+    <rect x="400" y="120" width="180" height="56" rx="12" fill="#0f2236" stroke="#38bdf8"/>
+    <text x="490" y="145" text-anchor="middle" fill="#7dd3fc" font-weight="700">subagent-*.js</text>
+    <text x="490" y="164" text-anchor="middle" fill="#94a3b8">naive · resilient</text>
+    <rect x="600" y="120" width="150" height="56" rx="12" fill="#0f2236" stroke="#38bdf8"/>
+    <text x="675" y="145" text-anchor="middle" fill="#7dd3fc" font-weight="700">coordinator.js</text>
+    <text x="675" y="164" text-anchor="middle" fill="#94a3b8">orchestrator</text>
+    <rect x="770" y="120" width="150" height="56" rx="12" fill="#0f2236" stroke="#38bdf8"/>
+    <text x="845" y="145" text-anchor="middle" fill="#7dd3fc" font-weight="700">demo.js</text>
+    <text x="845" y="164" text-anchor="middle" fill="#94a3b8">entry</text>
+    <path d="M190,148 L210,148" stroke="#38bdf8" stroke-width="2" marker-end="url(#ar1)"/>
+    <path d="M380,148 L400,148" stroke="#38bdf8" stroke-width="2" marker-end="url(#ar1)"/>
+    <path d="M580,148 L600,148" stroke="#38bdf8" stroke-width="2" marker-end="url(#ar1)"/>
+    <path d="M750,148 L770,148" stroke="#38bdf8" stroke-width="2" marker-end="url(#ar1)"/>
+    <text x="480" y="106" text-anchor="middle" font-size="12" fill="#64748b">↑ unidirectional dependency chain · no cycles</text>
+  </g>
+
+  <!-- Error taxonomy -->
+  <rect x="60" y="230" width="400" height="190" rx="16" fill="#0b1220" stroke="#475569"/>
+  <text x="260" y="258" text-anchor="middle" font-size="16" font-weight="700" fill="#e2e8f0">🏷️ Typed Error Hierarchy</text>
+  <rect x="160" y="276" width="200" height="40" rx="8" fill="#1e293b" stroke="#94a3b8"/>
+  <text x="260" y="301" text-anchor="middle" fill="#cbd5e1">AgentError { recoverable }</text>
+  <rect x="80" y="334" width="170" height="42" rx="8" fill="#0c2a23" stroke="#34d399"/>
+  <text x="165" y="354" text-anchor="middle" fill="#6ee7b7" font-weight="700">TransientError</text>
+  <text x="165" y="370" text-anchor="middle" fill="#a7f3d0" font-size="11">recoverable:true → retry local</text>
+  <rect x="270" y="334" width="170" height="42" rx="8" fill="#2a1414" stroke="#f87171"/>
+  <text x="355" y="354" text-anchor="middle" fill="#fca5a5" font-weight="700">FatalError</text>
+  <text x="355" y="370" text-anchor="middle" fill="#fecaca" font-size="11">recoverable:false → escalate</text>
+  <line x1="200" y1="316" x2="165" y2="334" stroke="#475569"/>
+  <line x1="320" y1="316" x2="355" y2="334" stroke="#475569"/>
+  <text x="260" y="404" text-anchor="middle" font-size="12" fill="#94a3b8">Callers branch on the flag — never on message parsing.</text>
+
+  <!-- Structured result contract -->
+  <rect x="500" y="230" width="400" height="190" rx="16" fill="#0b1220" stroke="#475569"/>
+  <text x="700" y="258" text-anchor="middle" font-size="16" font-weight="700" fill="#e2e8f0">📦 Structured Escalation Result</text>
+  <g font-family="ui-monospace, monospace" font-size="12.5" fill="#a7f3d0">
+    <text x="528" y="286">{ status: 'needs_verification',</text>
+    <text x="528" y="306">  pending: [complexClaim],</text>
+    <text x="528" y="326">  findings: [...partial],</text>
+    <text x="528" y="346">  attemptLog: ['escalate 1'],</text>
+    <text x="528" y="366">  errorContext: { ... } }</text>
+  </g>
+  <text x="700" y="396" text-anchor="middle" font-size="12" fill="#fcd34d">⚠️ Never a thrown raw exception to the coordinator.</text>
+
+  <!-- Duck typed contract -->
+  <rect x="60" y="448" width="840" height="116" rx="16" fill="#0a1f1a" stroke="#22c55e" stroke-width="2"/>
+  <text x="480" y="476" text-anchor="middle" font-size="16" font-weight="700" fill="#86efac">🦆 Duck-Typed Contract — same interface, two behaviours</text>
+  <g font-family="ui-monospace, monospace" font-size="13" fill="#bbf7d0">
+    <text x="110" y="504">async synthesize(task, ctx) → { status, pending, findings, attemptLog }</text>
+    <text x="110" y="528">async process via coordinator.run(task, agent) — interchangeable ✅</text>
+  </g>
+  <text x="480" y="552" text-anchor="middle" font-size="12" fill="#cbd5e1">The SAME coordinator drives naive &amp; resilient; the contrast is purely capability scoping.</text>
+</svg>

@@ -1,0 +1,33 @@
+{
+  "name": "verify-fact-scoping-demo",
+  "version": "1.0.0",
+  "description": "Architectural demonstration of a scoped verify_fact tool for a multi-agent research system (Claude AI Architect Exam). Naive coordinator-bounce vs. resilient least-privilege tool scoping.",
+  "type": "module",
+  "main": "demo.js",
+  "bin": {
+    "verify-fact-scoping-demo": "demo.js"
+  },
+  "scripts": {
+    "start": "node demo.js",
+    "demo": "node demo.js",
+    "naive": "node demo.js --naive",
+    "resilient": "node demo.js --resilient",
+    "check": "node --check demo.js && node --check src/*.js"
+  },
+  "keywords": [
+    "multi-agent",
+    "ai-architecture",
+    "least-privilege",
+    "tool-scoping",
+    "coordinator",
+    "synthesis-agent",
+    "verify-fact",
+    "resilience",
+    "claude-architect"
+  ],
+  "author": "rifaterdemsahin",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,1563 @@
+{
+  "generatedAt": "2026-07-02T14:45:49.062Z",
+  "workload": {
+    "tasks": 5,
+    "claims": 25,
+    "simple": 21,
+    "complex": 4,
+    "simplePct": 84,
+    "complexPct": 16
+  },
+  "tokenCost": {
+    "SYNTHESIS_PROMPT": 1200,
+    "COORDINATOR_OVERHEAD": 250,
+    "WEB_SEARCH_PROMPT": 450,
+    "VERIFY_FACT_TOOL": 70
+  },
+  "naive": {
+    "metrics": {
+      "scenario": "naive",
+      "tasksCompleted": 5,
+      "tasksFailed": 0,
+      "claimsTotal": 25,
+      "claimsVerifiedLocally": 0,
+      "claimsEscalated": 25,
+      "coordinatorInterventions": 25,
+      "roundTrips": 25,
+      "localRecoveries": 0,
+      "inputTokens": 53500,
+      "outputTokens": 0,
+      "latencyMs": 21450,
+      "successRate": 1,
+      "maxReentrancy": 6,
+      "eventCount": 80
+    },
+    "trace": [
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"History of the Transistor\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The transistor was invented at Bell Labs.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The transistor was invented at Bell Labs.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"inventor:transistor\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It was first demonstrated in December 1947.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It was first demonstrated in December 1947.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:transistor-demo\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The co-inventors include Bardeen, Brattain and Shockley.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The co-inventors include Bardeen, Brattain and Shockley.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"people:transistor-inventors\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It revolutionized electronics by replacing bulky vacuum tubes.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It revolutionized electronics by replacing bulky vacuum tubes.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:vacuum-tubes\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:semiconductor-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"History of the Transistor\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The TCP/IP Flag Day\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"TCP/IP was adopted as the ARPANET standard on January 1, 1983.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"TCP/IP was adopted as the ARPANET standard on January 1, 1983.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:tcp-ip-flag-day\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Vint Cerf and Bob Kahn designed the protocol suite.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Vint Cerf and Bob Kahn designed the protocol suite.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"people:tcp-ip-authors\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It replaced the earlier NCP protocol.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It replaced the earlier NCP protocol.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:ncp\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"IPv6 was developed to address exhaustion of the 32-bit address space.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"IPv6 was developed to address exhaustion of the 32-bit address space.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:ipv6-motivation\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The evolution of global routing shaped the modern internet economy and peering politics.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The evolution of global routing shaped the modern internet economy and peering politics.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:global-routing-economy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The TCP/IP Flag Day\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"CRISPR Gene Editing\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"CRISPR was first described as a bacterial immune system.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"CRISPR was first described as a bacterial immune system.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:crispr-immunity\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Jennifer Doudna and Emmanuelle Charpentier shared the 2020 Nobel Prize in Chemistry for it.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Jennifer Doudna and Emmanuelle Charpentier shared the 2020 Nobel Prize in Chemistry for it.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:crispr-nobel\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Cas9 is the protein that cuts DNA.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Cas9 is the protein that cuts DNA.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:cas9\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The \"guide RNA\" directs the cut to a target sequence.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The \"guide RNA\" directs the cut to a target sequence.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:guide-rna\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:crispr-policy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"CRISPR Gene Editing\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"Kubernetes Origin\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Kubernetes was open-sourced by Google in 2014.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Kubernetes was open-sourced by Google in 2014.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:k8s-opensource\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It was based on Google internal system Borg.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It was based on Google internal system Borg.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:borg\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Version 1.0 released in July 2015.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Version 1.0 released in July 2015.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:k8s-v1\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"CNCF hosts the project.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"CNCF hosts the project.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:cncf\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:k8s-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"Kubernetes Origin\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The Transformer Architecture\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The Transformer was introduced in \"Attention Is All You Need\".\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The Transformer was introduced in \"Attention Is All You Need\".\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"paper:transformer\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It was published in 2017.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It was published in 2017.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:transformer-paper\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It replaced recurrent networks (RNN/LSTM).\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It replaced recurrent networks (RNN/LSTM).\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:rnn\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"BERT and GPT are transformer-based models.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"BERT and GPT are transformer-based models.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:bert-gpt\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The architecture relies on self-attention instead of recurrence.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The architecture relies on self-attention instead of recurrence.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:self-attention\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The Transformer Architecture\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      }
+    ]
+  },
+  "resilient": {
+    "metrics": {
+      "scenario": "resilient",
+      "tasksCompleted": 5,
+      "tasksFailed": 0,
+      "claimsTotal": 25,
+      "claimsVerifiedLocally": 21,
+      "claimsEscalated": 4,
+      "coordinatorInterventions": 4,
+      "roundTrips": 4,
+      "localRecoveries": 21,
+      "inputTokens": 15070,
+      "outputTokens": 0,
+      "latencyMs": 5070,
+      "successRate": 1,
+      "maxReentrancy": 2,
+      "eventCount": 38
+    },
+    "trace": [
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"History of the Transistor\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"History of the Transistor\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(inventor:transistor) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"inventor:transistor\" → Bell Labs",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:transistor-demo) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:transistor-demo\" → 1947",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(people:transistor-inventors) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"people:transistor-inventors\" → Bardeen/Brattain/Shockley",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:vacuum-tubes) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:vacuum-tubes\" → vacuum tubes",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:semiconductor-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"History of the Transistor\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"History of the Transistor\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The TCP/IP Flag Day\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"The TCP/IP Flag Day\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:tcp-ip-flag-day) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:tcp-ip-flag-day\" → 1983-01-01",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(people:tcp-ip-authors) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"people:tcp-ip-authors\" → Cerf/Kahn",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:ncp) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:ncp\" → NCP",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:ipv6-motivation) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:ipv6-motivation\" → 32-bit",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"The evolution of global routing shaped the modern internet economy and peering politics.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The evolution of global routing shaped the modern internet economy and peering politics.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:global-routing-economy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"The TCP/IP Flag Day\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The TCP/IP Flag Day\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"CRISPR Gene Editing\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"CRISPR Gene Editing\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:crispr-immunity) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:crispr-immunity\" → bacterial immune system",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:crispr-nobel) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:crispr-nobel\" → 2020",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:cas9) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:cas9\" → Cas9",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:guide-rna) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:guide-rna\" → guide RNA",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:crispr-policy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"CRISPR Gene Editing\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"CRISPR Gene Editing\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"Kubernetes Origin\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"Kubernetes Origin\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:k8s-opensource) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:k8s-opensource\" → 2014",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:borg) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:borg\" → Borg",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:k8s-v1) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:k8s-v1\" → 2015-07",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:cncf) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:cncf\" → CNCF",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:k8s-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"Kubernetes Origin\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"Kubernetes Origin\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The Transformer Architecture\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"The Transformer Architecture\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(paper:transformer) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"paper:transformer\" → Attention Is All You Need",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:transformer-paper) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:transformer-paper\" → 2017",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:rnn) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:rnn\" → RNN/LSTM",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:bert-gpt) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:bert-gpt\" → BERT/GPT",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:self-attention) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:self-attention\" → self-attention",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The Transformer Architecture\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      }
+    ]
+  }
+}

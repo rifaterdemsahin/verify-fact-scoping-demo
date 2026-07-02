@@ -1,0 +1,2259 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>verify-fact-scoping-demo · Multi-Agent Research System (Claude AI Architect)</title>
+  <meta name="description" content="Architectural demonstration: a scoped verify_fact tool for a multi-agent research system. Naive coordinator-bounce vs. resilient least-privilege scoping — 71.8% fewer input tokens, 76% less latency, 100% reliability." />
+  <meta name="author" content="rifaterdemsahin" />
+  <meta name="theme-color" content="#0a0f1f" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="verify-fact-scoping-demo" />
+  <meta property="og:description" content="Scoped verify_fact tool for a multi-agent research system — Claude AI Architect exam demo." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://rifaterdemsahin.github.io/verify-fact-scoping-demo/" />
+  <meta property="og:image" content="docs/step-images/step-0.svg" />
+
+  <!-- 🎨 Pico.css (classless, dark) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <!-- ⚡ htmx -->
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" href="favicon.ico" />
+
+  <style>
+    :root {
+      --pico-background-color: #070b16;
+      --pico-primary: #22d3ee;
+      --pico-primary-background: #0891b2;
+      --glass: rgba(255,255,255,0.04);
+      --glass-strong: rgba(255,255,255,0.07);
+      --border: rgba(148,163,184,0.18);
+      --naive: #f87171;
+      --naive-bg: rgba(248,113,113,0.10);
+      --resilient: #34d399;
+      --resilient-bg: rgba(52,211,153,0.10);
+      --accent: #a78bfa;
+      --warn: #facc15;
+      --radius: 18px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background:
+        radial-gradient(1100px 600px at 12% -8%, rgba(34,211,238,0.10), transparent 60%),
+        radial-gradient(1000px 600px at 92% 4%, rgba(167,139,250,0.12), transparent 60%),
+        radial-gradient(900px 700px at 50% 120%, rgba(52,211,153,0.08), transparent 60%),
+        var(--pico-background-color);
+      color: #e5edf7;
+    }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .grad-text {
+      background: linear-gradient(92deg,#22d3ee,#a78bfa 55%,#34d399);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+    }
+    .glass:hover { border-color: rgba(34,211,238,0.35); }
+    .badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .35rem .7rem; border-radius: 999px; font-size: .8rem; font-weight: 600;
+      border: 1px solid var(--border); background: var(--glass-strong);
+    }
+    .badge-llm { border-color: rgba(167,139,250,.55); color: #ddd6fe; background: rgba(167,139,250,.10); }
+    .badge-live { border-color: rgba(52,211,153,.55); color: #a7f3d0; background: rgba(52,211,153,.10); }
+    a { color: var(--pico-primary); }
+    h1,h2,h3,h4 { letter-spacing: -0.02em; }
+    section { margin-top: 2.6rem; }
+    .hero-title { font-weight: 900; font-size: clamp(1.9rem, 4.4vw, 3.3rem); line-height: 1.05; }
+
+    /* Metric cards */
+    .metric-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 1rem; }
+    .metric { padding: 1.1rem 1.2rem; }
+    .metric .label { color:#94a3b8; font-size:.82rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em;}
+    .metric .val { font-size: 1.7rem; font-weight: 800; margin-top:.2rem; }
+    .metric .sub { font-size:.8rem; margin-top:.15rem; }
+    .delta { color: var(--resilient); font-weight:700; }
+    .delta.bad { color: var(--naive); }
+
+    /* Scenario focus */
+    #sim[data-focus="naive"]    .col-resilient { opacity:.22; filter:grayscale(.7); transform: scale(.99); }
+    #sim[data-focus="resilient"] .col-naive { opacity:.22; filter:grayscale(.7); transform: scale(.99); }
+    #sim[data-focus="side"] .col-naive,
+    #sim[data-focus="side"] .col-resilient { opacity:1; filter:none; transform:none; }
+    .col-naive { border-top: 3px solid var(--naive); }
+    .col-resilient { border-top: 3px solid var(--resilient); }
+    .transition-all { transition: all .35s ease; }
+
+    /* Tabs */
+    .tabs { display:flex; gap:.5rem; flex-wrap:wrap; }
+    .tab-btn {
+      padding:.6rem 1rem; border-radius:999px; border:1px solid var(--border);
+      background:var(--glass); color:#cbd5e1; cursor:pointer; font-weight:600; font-size:.92rem;
+      transition: all .2s ease;
+    }
+    .tab-btn:hover { border-color: var(--pico-primary); color:#fff; }
+    .tab-btn[aria-selected="true"] { background: linear-gradient(92deg,#0891b2,#7c3aed); color:#fff; border-color:transparent; }
+
+    /* Event log */
+    .log { height: 280px; overflow:auto; background:#04070f; border:1px solid var(--border); border-radius:14px; padding:.7rem .85rem; font-family:'JetBrains Mono',monospace; font-size:.78rem; line-height:1.5; }
+    .log::-webkit-scrollbar{width:9px;height:9px} .log::-webkit-scrollbar-thumb{background:#1e293b;border-radius:9px}
+    .ev { display:flex; gap:.5rem; padding:.18rem 0; border-bottom:1px solid rgba(148,163,184,.06); animation: fadeIn .25s ease; }
+    .ev .k { color:#7dd3fc; min-width:118px; }
+    .ev.naive .k { color:#fca5a5; }
+    .ev.resilient .k { color:#6ee7b7; }
+    .ev .ts { color:#475569; min-width:42px; }
+    @keyframes fadeIn { from{opacity:0; transform:translateY(3px)} to{opacity:1; transform:none} }
+
+    /* Buttons */
+    .btn-ctrl { padding:.5rem .9rem; border-radius:12px; border:1px solid var(--border); background:var(--glass-strong); color:#e5edf7; cursor:pointer; font-weight:600; font-size:.92rem; }
+    .btn-ctrl:hover { border-color: var(--pico-primary); }
+    .btn-primary { background: linear-gradient(92deg,#0891b2,#7c3aed); border:none; color:#fff; }
+    .btn-audio { background: rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.4); color:#a7f3d0; }
+
+    /* Zoomable images */
+    [data-zoom] { cursor: zoom-in; border-radius: 14px; transition: transform .25s ease, box-shadow .25s ease; width:100%; height:auto; display:block; border:1px solid var(--border); }
+    [data-zoom]:hover { transform: translateY(-3px) scale(1.012); box-shadow:0 18px 50px rgba(0,0,0,.5); border-color: rgba(34,211,238,.4); }
+
+    /* Lightbox */
+    #lightbox { position:fixed; inset:0; background:rgba(2,6,18,.92); display:none; align-items:center; justify-content:center; z-index:1000; padding:2rem; backdrop-filter: blur(6px); }
+    #lightbox.open { display:flex; animation: fadeIn .2s ease; }
+    #lightbox img { max-width:96vw; max-height:92vh; border-radius:14px; box-shadow:0 30px 90px rgba(0,0,0,.7); border:1px solid rgba(148,163,184,.25); }
+    #lightbox .cap { position:absolute; bottom:1.2rem; left:0; right:0; text-align:center; color:#cbd5e1; font-size:.9rem; }
+    #lb-close { position:absolute; top:1.1rem; right:1.4rem; font-size:1.8rem; color:#fff; cursor:pointer; background:none; border:none; }
+
+    /* Narration highlight */
+    .narrating { outline: 2px solid #22d3ee; outline-offset: 6px; border-radius: var(--radius); box-shadow: 0 0 0 8px rgba(34,211,238,.12), 0 0 40px rgba(34,211,238,.25); animation: pulseGlow 1.6s ease-in-out infinite; }
+    @keyframes pulseGlow { 0%,100%{ box-shadow:0 0 0 8px rgba(34,211,238,.10), 0 0 30px rgba(34,211,238,.2);} 50%{ box-shadow:0 0 0 10px rgba(34,211,238,.18), 0 0 50px rgba(34,211,238,.35);} }
+
+    .pill { font-size:.72rem; padding:.15rem .5rem; border-radius:6px; font-weight:700; }
+    .pill-naive { background: var(--naive-bg); color: var(--naive); }
+    .pill-resilient { background: var(--resilient-bg); color: var(--resilient); }
+    .check { color: var(--resilient); font-weight:800; }
+    .cross { color: var(--naive); font-weight:800; }
+    .kv { display:flex; justify-content:space-between; padding:.32rem 0; border-bottom:1px dashed rgba(148,163,184,.14); font-size:.9rem;}
+    .kv:last-child{border-bottom:none}
+    .small-muted{ color:#7c8aa0; font-size:.82rem;}
+    table.cmp { width:100%; border-collapse:collapse; font-size:.9rem; }
+    table.cmp th, table.cmp td { padding:.6rem .7rem; border-bottom:1px solid var(--border); text-align:left; }
+    table.cmp td.num { text-align:right; font-family:'JetBrains Mono',monospace; }
+    .hide { display:none !important; }
+    code.inline { background:#0b1220; padding:.1rem .35rem; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:.85em; color:#7dd3fc; }
+    .reveal { opacity:0; transform: translateY(14px); transition: all .6s ease; }
+    .reveal.in { opacity:1; transform:none; }
+  </style>
+</head>
+<body>
+  <!-- ===================== HEADER ===================== -->
+  <header class="container" style="padding-top:1.6rem;">
+    <div class="glass" style="padding:1.1rem 1.3rem; display:flex; flex-wrap:wrap; gap:.8rem; align-items:center; justify-content:space-between;">
+      <div>
+        <span class="badge badge-llm">🤖 Generated by: Auto-Detect (Executing AI Assistant Model)</span>
+        <span class="badge badge-live">🌐 Live on GitHub Pages</span>
+      </div>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+        <button id="readAll" class="btn-ctrl btn-audio">🔊 Read Walkthrough</button>
+        <a class="btn-ctrl" href="https://github.com/rifaterdemsahin/verify-fact-scoping-demo" target="_blank" rel="noopener">📂 GitHub Repo</a>
+        <a class="btn-ctrl btn-primary" href="#sim">▶ Open Simulator</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <main class="container">
+    <section id="intro">
+      <p class="small-muted" style="letter-spacing:.18em; text-transform:uppercase; font-weight:700;">Claude AI Architect Exam · Multi-Agent Research System</p>
+      <h1 class="hero-title">A scoped <span class="grad-text">verify_fact</span> tool beats bouncing every check to the coordinator.</h1>
+      <p style="font-size:1.08rem; color:#b9c6da; max-width:62ch; margin-top:.8rem;">
+        When a synthesis agent must verify claims, the naive architecture returns control to the
+        coordinator → web search agent → re-invokes synthesis on every trivial date, name or statistic.
+        The answer: hand it a <strong>narrow, bounded, read-only</strong> <code class="inline">verify_fact</code> tool for the
+        <strong>85%</strong> simple checks, and keep the coordinator path only for the <strong>15%</strong> deep dives.
+      </p>
+      <div style="display:flex; gap:.6rem; flex-wrap:wrap; margin-top:1rem;">
+        <span class="pill pill-naive">❌ Naive · 53,500 tok · 21.5s</span>
+        <span class="pill pill-resilient">✅ Resilient · 15,070 tok · 5.1s</span>
+        <span class="pill pill-resilient">🪙 −71.8% input tokens</span>
+        <span class="pill pill-resilient">⚡ −76% latency</span>
+        <span class="pill pill-resilient">🎯 −84% interventions</span>
+        <span class="pill pill-resilient">🛡️ 100% reliability</span>
+      </div>
+    </section>
+
+    <!-- ===================== EXAM Q & A ===================== -->
+    <section id="exam">
+      <h2>📋 The Exam Question &amp; Answer</h2>
+      <div class="metric-grid">
+        <article class="glass" style="padding:1.2rem;">
+          <h4 style="color:#fca5a5;">❓ Question</h4>
+          <p class="small-muted" style="color:#cdd7e6;">
+            During testing, the synthesis agent frequently needs to verify claims while combining findings.
+            Currently each verification returns control to the coordinator → invokes the web search agent →
+            re-invokes synthesis with results. This adds 2–3 round trips per task and +40% latency. 85% of
+            verifications are simple fact-checks (dates, names, statistics); 15% require deeper investigation.
+            What reduces overhead while maintaining reliability?
+          </p>
+        </article>
+        <article class="glass" style="padding:1.2rem;">
+          <h4 style="color:#6ee7b7;">✅ Recommended Answer</h4>
+          <p class="small-muted" style="color:#cdd7e6;">
+            Give the synthesis agent a <strong>scoped <code class="inline">verify_fact</code> tool</strong> for simple
+            lookups, while complex verifications keep delegating to the web search agent through the coordinator.
+            Classic balance of latency vs. least-privilege boundary separation — a fast localized lookup handles the
+            85% trivial checks; the coordinator path is preserved for heavy exploratory research.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== TOP METRIC SCOREBOARD ===================== -->
+    <section id="scoreboard">
+      <h2>📊 Headline Metric Scoreboard <span class="small-muted">(naive → resilient)</span></h2>
+      <div class="metric-grid" id="headline">
+        <div class="glass metric"><div class="label">🔀 Coordinator Interventions</div><div class="val" data-count="25→4">25 → 4</div><div class="sub delta">−84%</div></div>
+        <div class="glass metric"><div class="label">🪙 Input Tokens</div><div class="val" data-count="53500→15070">53,500 → 15,070</div><div class="sub delta">−71.8%</div></div>
+        <div class="glass metric"><div class="label">⚡ Latency</div><div class="val" data-count="21.5s→5.1s">21.5s → 5.1s</div><div class="sub delta">−76.4%</div></div>
+        <div class="glass metric"><div class="label">🛡️ Reliability</div><div class="val" data-count="100%">100%</div><div class="sub delta">held steady ✅</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== INTERACTIVE SIMULATOR ===================== -->
+    <section id="sim" data-focus="side">
+      <h2>🖥️ Interactive Simulator <span class="small-muted">— trace replay · live counters · htmx tabs</span></h2>
+
+      <!-- Tabs (htmx-driven, JS fallback) -->
+      <div class="tabs" role="tablist" style="margin-bottom:.9rem;">
+        <button class="tab-btn" role="tab" aria-selected="true"  data-focus="side"      hx-get="partials/focus-side.html"      hx-target="#focus-host" hx-swap="innerHTML">⬌ Side-by-Side</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-focus="naive"     hx-get="partials/focus-naive.html"     hx-target="#focus-host" hx-swap="innerHTML">❌ Naive only</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-focus="resilient" hx-get="partials/focus-resilient.html" hx-target="#focus-host" hx-swap="innerHTML">✅ Resilient only</button>
+        <div id="focus-host" class="hide" aria-hidden="true"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="glass" style="padding:.9rem 1rem; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-bottom:.9rem;">
+        <button id="playBtn" class="btn-ctrl btn-primary">▶ Play</button>
+        <button id="stepBtn" class="btn-ctrl">⏭ Step</button>
+        <button id="resetBtn" class="btn-ctrl">↺ Reset</button>
+        <label class="small-muted" style="display:flex; align-items:center; gap:.4rem; margin-left:.4rem;">Speed
+          <input id="speed" type="range" min="1" max="10" value="5" style="width:120px;" />
+        </label>
+        <span id="progress" class="small-muted font-mono" style="margin-left:auto;">0 / 0 events</span>
+      </div>
+
+      <!-- Two live columns -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" class="sim-cols">
+        <div class="glass col-naive transition-all" style="padding:1rem;">
+          <h4 style="color:var(--naive); margin:0 0 .4rem;">❌ Naive — Coordinator-Bounce</h4>
+          <div class="metric-grid" style="grid-template-columns:1fr 1fr;">
+            <div><div class="small-muted">Interventions</div><div class="val font-mono" id="n-interv">0</div></div>
+            <div><div class="small-muted">Input tokens</div><div class="val font-mono" id="n-tok">0</div></div>
+            <div><div class="small-muted">Latency (ms)</div><div class="val font-mono" id="n-lat">0</div></div>
+            <div><div class="small-muted">Round trips</div><div class="val font-mono" id="n-rt">0</div></div>
+          </div>
+          <div class="log" id="log-naive" style="margin-top:.7rem;"><span class="small-muted">Press ▶ Play to replay the naive trace…</span></div>
+        </div>
+
+        <div class="glass col-resilient transition-all" style="padding:1rem;">
+          <h4 style="color:var(--resilient); margin:0 0 .4rem;">✅ Resilient — Scoped verify_fact</h4>
+          <div class="metric-grid" style="grid-template-columns:1fr 1fr;">
+            <div><div class="small-muted">Local verifications</div><div class="val font-mono" id="r-local">0</div></div>
+            <div><div class="small-muted">Input tokens</div><div class="val font-mono" id="r-tok">0</div></div>
+            <div><div class="small-muted">Latency (ms)</div><div class="val font-mono" id="r-lat">0</div></div>
+            <div><div class="small-muted">Escalations</div><div class="val font-mono" id="r-esc">0</div></div>
+          </div>
+          <div class="log" id="log-resilient" style="margin-top:.7rem;"><span class="small-muted">Press ▶ Play to replay the resilient trace…</span></div>
+        </div>
+      </div>
+
+      <!-- htmx dynamic injection demo -->
+      <div class="glass" style="padding:1rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem;">
+          <strong>🔄 htmx dynamic fragment (no full page reload)</strong>
+          <button class="btn-ctrl"
+                  hx-get="partials/sample-handoff.html"
+                  hx-target="#htmx-demo"
+                  hx-swap="innerHTML">Inject a sample hand-off event →</button>
+        </div>
+        <div id="htmx-demo" class="font-mono small-muted" style="margin-top:.7rem;">Click to load a structured hand-off fragment via htmx…</div>
+      </div>
+    </section>
+
+    <!-- ===================== COMPARISON TABLE ===================== -->
+    <section id="comparison">
+      <h2>📐 Side-by-Side Architectural Metrics</h2>
+      <div class="glass" style="padding:1rem 1.2rem; overflow-x:auto;">
+        <table class="cmp">
+          <thead><tr><th>Metric</th><th class="num">❌ Naive</th><th class="num">✅ Resilient</th><th class="num">Δ</th></tr></thead>
+          <tbody id="cmp-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== TOKEN SCOREBOARD ===================== -->
+    <section id="tokens">
+      <h2>🪙 Input Token Stats &amp; Efficiency Scoreboard</h2>
+      <div class="metric-grid">
+        <div class="glass" style="padding:1.1rem 1.2rem;">
+          <h4>Per-operation input-token cost model</h4>
+          <div id="cost-model"></div>
+        </div>
+        <div class="glass" style="padding:1.1rem 1.2rem;">
+          <h4>Workload &amp; totals</h4>
+          <div id="workload-kv"></div>
+        </div>
+        <div class="glass" style="padding:1.1rem 1.2rem; grid-column: span 2;">
+          <h4>🪙 Token scoreboard</h4>
+          <div id="token-board"></div>
+          <p class="small-muted" style="margin-top:.7rem;">
+            💡 The scoped <code class="inline">verify_fact</code> tool pays <strong>70 tok</strong> per trivial check instead of
+            <strong>~1,900 tok</strong> per coordinator round trip (250 overhead + 450 web-search prompt + 1,200 context replay).
+            That single architectural seam delivers a <strong>71.8% input-token reduction with zero reliability loss.</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HOW / WHAT / WHY WALKTHROUGH ===================== -->
+    <section id="walkthrough">
+      <h2>🎓 “How, What &amp; Why” Walkthrough</h2>
+      <p class="small-muted">Click any diagram to open it in a fullscreen lightbox 🔍. Use 🔊 to hear each step and auto-follow along.</p>
+
+      <article class="glass reveal" id="step-0" data-narrate="intro" style="padding:1.2rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin-bottom:.2rem;">🔍 Step 0 · The Verification Bottleneck</h3>
+            <p class="small-muted" style="margin-top:0;"><strong>WHAT:</strong> every trivial fact-check bounces synthesis → coordinator → web search → back.
+            <strong>WHY slow:</strong> each round trip re-plays full context. <strong>HOW fixed:</strong> 85% of checks need only a bounded lookup.</p>
+          </div>
+          <button class="btn-ctrl btn-audio" data-narrate-btn="intro">🔊 Listen &amp; Follow</button>
+        </div>
+        <figure style="margin:.8rem 0 0;">
+          <img data-zoom src="docs/step-images/step-0.svg" alt="The verification bottleneck" data-cap="Step 0 — the verification bottleneck" />
+          <figcaption class="small-muted">🚀 The core problem: round trips scale with verifications in the naive path.</figcaption>
+        </figure>
+      </article>
+
+      <article class="glass reveal" id="step-1" data-narrate="step-1" style="padding:1.2rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin-bottom:.2rem;">🧩 Step 1 · Domain &amp; Typed Errors = Architectural Seams</h3>
+            <p class="small-muted" style="margin-top:0;"><strong>WHAT:</strong> a unidirectional module chain + typed errors (Transient vs Fatal).
+            <strong>WHY:</strong> callers branch on the recoverable flag — never message strings. <strong>HOW:</strong> one duck-typed <code class="inline">synthesize()</code> contract drives both agents.</p>
+          </div>
+          <button class="btn-ctrl btn-audio" data-narrate-btn="step-1">🔊 Listen &amp; Follow</button>
+        </div>
+        <figure style="margin:.8rem 0 0;">
+          <img data-zoom src="docs/step-images/step-1.svg" alt="Typed errors as architectural seams" data-cap="Step 1 — typed errors as architectural seams" />
+          <figcaption class="small-muted">🛡️ Structured escalation = a typed partial result, never a thrown raw exception.</figcaption>
+        </figure>
+      </article>
+
+      <article class="glass reveal" id="step-2" data-narrate="step-2" style="padding:1.2rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin-bottom:.2rem;">⚡ Step 2 · CLI Benchmark Engine</h3>
+            <p class="small-muted" style="margin-top:0;"><strong>WHAT:</strong> <code class="inline">node demo.js</code> runs both architectures on the same workload.
+            <strong>WHY:</strong> reproducible, quantifiable contrast. <strong>HOW:</strong> naive escalates all 25 claims; resilient verifies 21 locally + escalates 4.</p>
+          </div>
+          <button class="btn-ctrl btn-audio" data-narrate-btn="step-2">🔊 Listen &amp; Follow</button>
+        </div>
+        <figure style="margin:.8rem 0 0;">
+          <img data-zoom src="docs/step-images/step-2.svg" alt="CLI benchmark engine" data-cap="Step 2 — CLI benchmark engine" />
+          <figcaption class="small-muted">📊 ASCII tables + a dedicated input-token scoreboard at the foot of every run.</figcaption>
+        </figure>
+      </article>
+
+      <article class="glass reveal" id="step-3" data-narrate="step-3" style="padding:1.2rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin-bottom:.2rem;">🖥️ Step 3 · Interactive Web Simulator</h3>
+            <p class="small-muted" style="margin-top:0;"><strong>WHAT:</strong> Pico.css + htmx UI with animated counters &amp; live event log.
+            <strong>WHY:</strong> makes the architecture tangible. <strong>HOW:</strong> trace replay + click-to-zoom diagrams + audio auto-follow.</p>
+          </div>
+          <button class="btn-ctrl btn-audio" data-narrate-btn="step-3">🔊 Listen &amp; Follow</button>
+        </div>
+        <figure style="margin:.8rem 0 0;">
+          <img data-zoom src="docs/step-images/step-3.svg" alt="Web simulator architecture" data-cap="Step 3 — interactive web simulator" />
+          <figcaption class="small-muted">💡 Every diagram is click-to-zoom; audio narration auto-scrolls and highlights each section.</figcaption>
+        </figure>
+      </article>
+
+      <article class="glass reveal" id="step-4" data-narrate="step-4" style="padding:1.2rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin-bottom:.2rem;">🏁 Step 4 · Least-Privilege Wins</h3>
+            <p class="small-muted" style="margin-top:0;"><strong>WHAT:</strong> three options compared. <strong>WHY:</strong> full web access breaks scope; total delegation is slow.
+            <strong>HOW:</strong> a narrow tool for a narrow agent wins on every axis.</p>
+          </div>
+          <button class="btn-ctrl btn-audio" data-narrate-btn="step-4">🔊 Listen &amp; Follow</button>
+        </div>
+        <figure style="margin:.8rem 0 0;">
+          <img data-zoom src="docs/step-images/step-4.svg" alt="System summary" data-cap="Step 4 — least-privilege wins" />
+          <figcaption class="small-muted">🏆 −84% interventions · −76% latency · −71.8% tokens · 100% reliability.</figcaption>
+        </figure>
+      </article>
+    </section>
+
+    <!-- ===================== UML DIAGRAMS ===================== -->
+    <section id="diagrams">
+      <h2>📐 UML Diagrams</h2>
+      <div class="metric-grid">
+        <figure class="glass" style="padding:1rem;">
+          <figcaption style="margin-bottom:.5rem;"><strong>Static Class Structure</strong></figcaption>
+          <img data-zoom src="docs/uml-class.svg" alt="UML class diagram" data-cap="UML class diagram — static structure" />
+        </figure>
+        <figure class="glass" style="padding:1rem;">
+          <figcaption style="margin-bottom:.5rem;"><strong>Runtime Sequence (naive vs resilient)</strong></figcaption>
+          <img data-zoom src="docs/uml-workflow.svg" alt="UML sequence diagram" data-cap="UML sequence diagram — runtime flow" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="glass" style="padding:1.2rem 1.3rem; margin-top:2.6rem; text-align:center;">
+      <p style="margin:0;">
+        <span class="badge badge-llm">🤖 Generated by: Auto-Detect (Executing AI Assistant Model)</span>
+      </p>
+      <p class="small-muted" style="margin-top:.6rem;">
+        <a href="https://github.com/rifaterdemsahin/verify-fact-scoping-demo" target="_blank" rel="noopener">verify-fact-scoping-demo</a> ·
+        Claude AI Architect Exam · Multi-Agent Research System · <a href="https://rifaterdemsahin.github.io/verify-fact-scoping-demo/">Live Simulator</a>
+      </p>
+    </footer>
+  </main>
+
+  <!-- ===================== LIGHTBOX ===================== -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Image zoom">
+    <button id="lb-close" aria-label="Close">✕</button>
+    <img id="lb-img" src="" alt="" />
+    <div class="cap" id="lb-cap"></div>
+  </div>
+
+  <!-- ===================== DATA (embedded) ===================== -->
+  <script type="application/json" id="sim-data">{
+  "generatedAt": "2026-07-02T14:45:49.062Z",
+  "workload": {
+    "tasks": 5,
+    "claims": 25,
+    "simple": 21,
+    "complex": 4,
+    "simplePct": 84,
+    "complexPct": 16
+  },
+  "tokenCost": {
+    "SYNTHESIS_PROMPT": 1200,
+    "COORDINATOR_OVERHEAD": 250,
+    "WEB_SEARCH_PROMPT": 450,
+    "VERIFY_FACT_TOOL": 70
+  },
+  "naive": {
+    "metrics": {
+      "scenario": "naive",
+      "tasksCompleted": 5,
+      "tasksFailed": 0,
+      "claimsTotal": 25,
+      "claimsVerifiedLocally": 0,
+      "claimsEscalated": 25,
+      "coordinatorInterventions": 25,
+      "roundTrips": 25,
+      "localRecoveries": 0,
+      "inputTokens": 53500,
+      "outputTokens": 0,
+      "latencyMs": 21450,
+      "successRate": 1,
+      "maxReentrancy": 6,
+      "eventCount": 80
+    },
+    "trace": [
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"History of the Transistor\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The transistor was invented at Bell Labs.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The transistor was invented at Bell Labs.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"inventor:transistor\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It was first demonstrated in December 1947.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It was first demonstrated in December 1947.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:transistor-demo\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The co-inventors include Bardeen, Brattain and Shockley.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The co-inventors include Bardeen, Brattain and Shockley.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"people:transistor-inventors\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It revolutionized electronics by replacing bulky vacuum tubes.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It revolutionized electronics by replacing bulky vacuum tubes.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:vacuum-tubes\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:semiconductor-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"History of the Transistor\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"History of the Transistor\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The TCP/IP Flag Day\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"TCP/IP was adopted as the ARPANET standard on January 1, 1983.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"TCP/IP was adopted as the ARPANET standard on January 1, 1983.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:tcp-ip-flag-day\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Vint Cerf and Bob Kahn designed the protocol suite.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Vint Cerf and Bob Kahn designed the protocol suite.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"people:tcp-ip-authors\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It replaced the earlier NCP protocol.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It replaced the earlier NCP protocol.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:ncp\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"IPv6 was developed to address exhaustion of the 32-bit address space.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"IPv6 was developed to address exhaustion of the 32-bit address space.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:ipv6-motivation\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The evolution of global routing shaped the modern internet economy and peering politics.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The evolution of global routing shaped the modern internet economy and peering politics.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:global-routing-economy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The TCP/IP Flag Day\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The TCP/IP Flag Day\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"CRISPR Gene Editing\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"CRISPR was first described as a bacterial immune system.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"CRISPR was first described as a bacterial immune system.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:crispr-immunity\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Jennifer Doudna and Emmanuelle Charpentier shared the 2020 Nobel Prize in Chemistry for it.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Jennifer Doudna and Emmanuelle Charpentier shared the 2020 Nobel Prize in Chemistry for it.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:crispr-nobel\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Cas9 is the protein that cuts DNA.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Cas9 is the protein that cuts DNA.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:cas9\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The \"guide RNA\" directs the cut to a target sequence.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The \"guide RNA\" directs the cut to a target sequence.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:guide-rna\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:crispr-policy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"CRISPR Gene Editing\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"CRISPR Gene Editing\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"Kubernetes Origin\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Kubernetes was open-sourced by Google in 2014.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Kubernetes was open-sourced by Google in 2014.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:k8s-opensource\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It was based on Google internal system Borg.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It was based on Google internal system Borg.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:borg\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"Version 1.0 released in July 2015.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Version 1.0 released in July 2015.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:k8s-v1\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"CNCF hosts the project.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"CNCF hosts the project.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:cncf\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:k8s-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"Kubernetes Origin\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"Kubernetes Origin\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The Transformer Architecture\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The Transformer was introduced in \"Attention Is All You Need\".\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The Transformer was introduced in \"Attention Is All You Need\".\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"paper:transformer\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It was published in 2017.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It was published in 2017.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"date:transformer-paper\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"It replaced recurrent networks (RNN/LSTM).\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"It replaced recurrent networks (RNN/LSTM).\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:rnn\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"BERT and GPT are transformer-based models.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"BERT and GPT are transformer-based models.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:bert-gpt\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↩️ Cannot verify \"The architecture relies on self-attention instead of recurrence.\" — returning control to coordinator (round trip)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The architecture relies on self-attention instead of recurrence.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "naive"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"concept:self-attention\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "naive"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Naive synthesis invoked on \"The Transformer Architecture\" (context replay)",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "naive"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The Transformer Architecture\" (after 5 hand-offs)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "naive"
+      }
+    ]
+  },
+  "resilient": {
+    "metrics": {
+      "scenario": "resilient",
+      "tasksCompleted": 5,
+      "tasksFailed": 0,
+      "claimsTotal": 25,
+      "claimsVerifiedLocally": 21,
+      "claimsEscalated": 4,
+      "coordinatorInterventions": 4,
+      "roundTrips": 4,
+      "localRecoveries": 21,
+      "inputTokens": 15070,
+      "outputTokens": 0,
+      "latencyMs": 5070,
+      "successRate": 1,
+      "maxReentrancy": 2,
+      "eventCount": 38
+    },
+    "trace": [
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"History of the Transistor\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"History of the Transistor\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(inventor:transistor) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"inventor:transistor\" → Bell Labs",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:transistor-demo) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:transistor-demo\" → 1947",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(people:transistor-inventors) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"people:transistor-inventors\" → Bardeen/Brattain/Shockley",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:vacuum-tubes) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:vacuum-tubes\" → vacuum tubes",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"Its invention triggered a cascade of competing semiconductor firms and fabs across the 1950s.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:semiconductor-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"History of the Transistor\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"History of the Transistor\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The TCP/IP Flag Day\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"The TCP/IP Flag Day\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:tcp-ip-flag-day) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:tcp-ip-flag-day\" → 1983-01-01",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(people:tcp-ip-authors) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"people:tcp-ip-authors\" → Cerf/Kahn",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:ncp) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:ncp\" → NCP",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:ipv6-motivation) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:ipv6-motivation\" → 32-bit",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"The evolution of global routing shaped the modern internet economy and peering politics.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The evolution of global routing shaped the modern internet economy and peering politics.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:global-routing-economy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"The TCP/IP Flag Day\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The TCP/IP Flag Day\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"CRISPR Gene Editing\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"CRISPR Gene Editing\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:crispr-immunity) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:crispr-immunity\" → bacterial immune system",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:crispr-nobel) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:crispr-nobel\" → 2020",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:cas9) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:cas9\" → Cas9",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:guide-rna) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:guide-rna\" → guide RNA",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The patent landscape and ethics debates around germline editing reshaped biotech policy worldwide.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:crispr-policy\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"CRISPR Gene Editing\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"CRISPR Gene Editing\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"Kubernetes Origin\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"Kubernetes Origin\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:k8s-opensource) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:k8s-opensource\" → 2014",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:borg) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:borg\" → Borg",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:k8s-v1) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:k8s-v1\" → 2015-07",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:cncf) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:cncf\" → CNCF",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "escalate",
+        "layer": "agent:synthesis",
+        "detail": "↗️ Delegating complex claim \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\" to coordinator (bounded escalation)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "handoff",
+        "layer": "coordinator",
+        "detail": "🔀 Coordinator hand-off → web search agent for \"The ecosystem of operators, service meshes and policy engines redefined platform engineering at scale.\"",
+        "tokens": 250,
+        "latencyMs": 400,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "search",
+        "layer": "agent:web_search",
+        "detail": "🌐 Web search agent resolved \"explore:k8s-ecosystem\"",
+        "tokens": 450,
+        "latencyMs": 350,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"Kubernetes Origin\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"Kubernetes Origin\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "task_start",
+        "layer": "coordinator",
+        "detail": "🎯 Coordinator dispatched \"The Transformer Architecture\" (5 claims)",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "invoke",
+        "layer": "agent:synthesis",
+        "detail": "🧠 Resilient synthesis invoked on \"The Transformer Architecture\"",
+        "tokens": 1200,
+        "latencyMs": 90,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(paper:transformer) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"paper:transformer\" → Attention Is All You Need",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(date:transformer-paper) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"date:transformer-paper\" → 2017",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:rnn) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:rnn\" → RNN/LSTM",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:bert-gpt) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:bert-gpt\" → BERT/GPT",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "tool_call",
+        "layer": "tool:verify_fact",
+        "detail": "🔍 verify_fact(concept:self-attention) — local bounded lookup",
+        "tokens": 70,
+        "latencyMs": 60,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "local_recovery",
+        "layer": "tool:verify_fact",
+        "detail": "✅ Local verified \"concept:self-attention\" → self-attention",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      },
+      {
+        "kind": "completed",
+        "layer": "agent:synthesis",
+        "detail": "✅ Synthesis complete for \"The Transformer Architecture\" — 5/5 resolved locally",
+        "tokens": 0,
+        "latencyMs": 0,
+        "scenario": "resilient"
+      }
+    ]
+  }
+}</script>
+
+  <!-- ===================== APP LOGIC ===================== -->
+  <script>
+  (function () {
+    'use strict';
+    const LLM = '🤖 Generated by: Auto-Detect (Executing AI Assistant Model)';
+    let DATA = {};
+    try { DATA = JSON.parse(document.getElementById('sim-data').textContent || '{}'); } catch (e) { DATA = {}; }
+
+    /* ---------- Static renderers (work even if DATA missing) ---------- */
+    const fmt = (n) => Number(n).toLocaleString('en-US');
+    const N = { interv: 25, rt: 25, tok: 53500, lat: 21450, local: 0, esc: 25, sr: 1 };
+    const R = { interv: 4, rt: 4, tok: 15070, lat: 5070, local: 21, esc: 4, sr: 1 };
+    const COST = (DATA.tokenCost) || { SYNTHESIS_PROMPT:1200, COORDINATOR_OVERHEAD:250, WEB_SEARCH_PROMPT:450, VERIFY_FACT_TOOL:70 };
+    const WL = DATA.workload || { tasks:5, claims:25, simple:21, complex:4, simplePct:84, complexPct:16 };
+
+    function pctReduction(worse, better){ if(!worse) return 0; return ((worse-better)/worse*100).toFixed(1); }
+
+    /* Comparison table */
+    const cmpBody = document.getElementById('cmp-body');
+    const rows = [
+      ['Coordinator interventions', N.interv, R.interv],
+      ['Round trips', N.rt, R.rt],
+      ['Claims verified locally', N.local, R.local],
+      ['Claims escalated', N.esc, R.esc],
+      ['Input tokens', N.tok, R.tok],
+      ['Simulated latency (ms)', N.lat, R.lat],
+      ['Max re-entrancy depth', 6, 2],
+    ];
+    cmpBody.innerHTML = rows.map(([k,nv,rv])=>{
+      const d = (typeof nv==='number' && nv>rv) ? `−${pctReduction(nv,rv)}%` : (nv===rv?'=':'+');
+      const dCls = (typeof nv==='number' && nv>rv) ? 'delta' : 'small-muted';
+      return `<tr><td>${k}</td><td class="num">${fmt(nv)}</td><td class="num">${fmt(rv)}</td><td class="num ${dCls}">${d}</td></tr>`;
+    }).join('');
+
+    /* Cost model + workload + token board */
+    document.getElementById('cost-model').innerHTML = [
+      ['Synthesis prompt (per invoke)', COST.SYNTHESIS_PROMPT],
+      ['Coordinator overhead (per hand-off)', COST.COORDINATOR_OVERHEAD],
+      ['Web search agent (per query)', COST.WEB_SEARCH_PROMPT],
+      ['verify_fact tool (per local call)', COST.VERIFY_FACT_TOOL],
+    ].map(([k,v])=>`<div class="kv"><span>${k}</span><span class="font-mono">${fmt(v)} tok</span></div>`).join('');
+
+    document.getElementById('workload-kv').innerHTML = [
+      ['Research tasks', WL.tasks],
+      ['Claims total', WL.claims],
+      ['Simple (→ verify_fact)', `${WL.simple} (${WL.simplePct}%)`],
+      ['Complex (→ escalate)', `${WL.complex} (${WL.complexPct}%)`],
+    ].map(([k,v])=>`<div class="kv"><span>${k}</span><span class="font-mono">${v}</span></div>`).join('');
+
+    const saved = N.tok - R.tok;
+    document.getElementById('token-board').innerHTML = [
+      ['❌ Naive input tokens', fmt(N.tok)],
+      ['✅ Resilient input tokens', fmt(R.tok)],
+      ['Tokens saved', `${fmt(saved)}  (−${pctReduction(N.tok,R.tok)}%)`],
+      ['Interventions', `${N.interv} → ${R.interv}  (−${pctReduction(N.interv,R.interv)}%)`],
+      ['Latency', `${(N.lat/1000).toFixed(2)}s → ${(R.lat/1000).toFixed(2)}s  (−${pctReduction(N.lat,R.lat)}%)`],
+      ['Reliability held', `100% → 100% ✅`],
+    ].map(([k,v])=>`<div class="kv"><span>${k}</span><span class="font-mono">${v}</span></div>`).join('');
+
+    /* ---------- Trace replay engine ---------- */
+    const traceOf = (sc) => (DATA[sc] && DATA[sc].trace) ? DATA[sc].trace : FALLBACK_TRACE[sc];
+    const FALLBACK_TRACE = { naive: [], resilient: [] };
+    const engines = {
+      naive:     { trace: traceOf('naive'),     idx:0, log:document.getElementById('log-naive'),     counters:{interv:0,tok:0,lat:0,rt:0} },
+      resilient: { trace: traceOf('resilient'), idx:0, log:document.getElementById('log-resilient'), counters:{local:0,tok:0,lat:0,esc:0} },
+    };
+
+    function resetEngines(){
+      for (const k in engines){
+        const e = engines[k]; e.idx = 0;
+        for (const c in e.counters) e.counters[c]=0;
+        e.log.innerHTML = '<span class="small-muted">Press ▶ Play to replay the '+k+' trace…</span>';
+      }
+      paintCounters();
+      updateProgress();
+    }
+    function paintCounters(){
+      document.getElementById('n-interv').textContent = engines.naive.counters.interv;
+      document.getElementById('n-tok').textContent = fmt(engines.naive.counters.tok);
+      document.getElementById('n-lat').textContent = fmt(engines.naive.counters.lat);
+      document.getElementById('n-rt').textContent = engines.naive.counters.rt;
+      document.getElementById('r-local').textContent = engines.resilient.counters.local;
+      document.getElementById('r-tok').textContent = fmt(engines.resilient.counters.tok);
+      document.getElementById('r-lat').textContent = fmt(engines.resilient.counters.lat);
+      document.getElementById('r-esc').textContent = engines.resilient.counters.esc;
+    }
+    function updateProgress(){
+      const done = engines.naive.idx + engines.resilient.idx;
+      const total = engines.naive.trace.length + engines.resilient.trace.length;
+      document.getElementById('progress').textContent = `${done} / ${total} events`;
+    }
+    function appendEvent(e){
+      const host = engines[e.scenario].log;
+      if (host.querySelector('.small-muted')) host.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'ev ' + e.scenario;
+      div.innerHTML = `<span class="ts">#${e.i}</span><span class="k">${e.kind}</span><span>${e.detail}</span>`;
+      host.appendChild(div);
+      host.scrollTop = host.scrollHeight;
+    }
+    function stepOne(key){
+      const e = engines[key];
+      if (e.idx >= e.trace.length) return false;
+      const ev = e.trace[e.idx]; e.idx++;
+      // index stamped for display
+      appendEvent(Object.assign({i:e.idx, scenario:key}, ev));
+      // accumulate
+      if (key==='naive'){
+        if (ev.kind==='handoff'){ e.counters.interv++; e.counters.rt++; }
+      } else {
+        if (ev.kind==='local_recovery') e.counters.local++;
+        if (ev.kind==='handoff'){ e.counters.esc++; }
+      }
+      e.counters.tok += ev.tokens||0;
+      e.counters.lat += ev.latencyMs||0;
+      return true;
+    }
+    function tick(){
+      const a = stepOne('naive');
+      const b = stepOne('resilient');
+      paintCounters(); updateProgress();
+      if (!a && !b) stop();
+    }
+    let timer = null;
+    function play(){
+      if (timer) return;
+      const speed = parseInt(document.getElementById('speed').value,10);
+      const interval = Math.max(60, 620 - speed*55);
+      // if both finished, reset first
+      if (engines.naive.idx>=engines.naive.trace.length && engines.resilient.idx>=engines.resilient.trace.length) resetEngines();
+      document.getElementById('playBtn').textContent = '⏸ Pause';
+      timer = setInterval(tick, interval);
+    }
+    function stop(){
+      clearInterval(timer); timer=null;
+      document.getElementById('playBtn').textContent = '▶ Play';
+    }
+    document.getElementById('playBtn').addEventListener('click', ()=> timer ? stop() : play());
+    document.getElementById('stepBtn').addEventListener('click', ()=>{ stop(); tick(); });
+    document.getElementById('resetBtn').addEventListener('click', ()=>{ stop(); resetEngines(); });
+    document.getElementById('speed').addEventListener('input', ()=>{ if(timer){ stop(); play(); } });
+
+    resetEngines();
+
+    /* ---------- Tabs: htmx with JS fallback ---------- */
+    const sim = document.getElementById('sim');
+    const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
+    function setFocus(mode){
+      sim.dataset.focus = mode;
+      tabBtns.forEach(b=> b.setAttribute('aria-selected', b.dataset.focus===mode ? 'true':'false'));
+    }
+    tabBtns.forEach(b=> b.addEventListener('click', ()=>{
+      const mode = b.dataset.focus; setFocus(mode);
+    }));
+    // htmx: after a successful swap of the marker, apply focus from it
+    document.body.addEventListener('htmx:afterSwap', (ev)=>{
+      const marker = ev.detail.target.querySelector && ev.detail.target.querySelector('[data-focus]');
+      if (marker) setFocus(marker.getAttribute('data-focus'));
+    });
+    // htmx: graceful fallback when partials can't be fetched (file://)
+    document.body.addEventListener('htmx:responseError', (ev)=>{
+      const btn = ev.detail.requestConfig && ev.detail.requestConfig.elt;
+      if (btn && btn.dataset && btn.dataset.focus) setFocus(btn.dataset.focus);
+    });
+
+    /* ---------- Lightbox ---------- */
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lb-img');
+    const lbCap = document.getElementById('lb-cap');
+    function openLightbox(img){
+      lbImg.src = img.src; lbImg.alt = img.alt;
+      lbCap.textContent = img.dataset.cap || img.alt || '';
+      lb.classList.add('open');
+    }
+    function closeLightbox(){ lb.classList.remove('open'); lbImg.src=''; }
+    document.addEventListener('click', (e)=>{
+      const img = e.target.closest('[data-zoom]');
+      if (img){ e.preventDefault(); openLightbox(img); return; }
+      if (e.target===lb || e.target.id==='lb-close' || e.target.closest('#lb-close')) closeLightbox();
+    });
+    document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') closeLightbox(); });
+
+    /* ---------- Audio narrator (MP3 + speechSynthesis fallback, auto-follow) ---------- */
+    const NARRATION = {
+      'intro':  { file:'audio/intro.mp3',  text:'Welcome to the verify fact scoping demonstration...' },
+      'step-1': { file:'audio/step-1.mp3', text:'Step one. The domain and infrastructure layer...' },
+      'step-2': { file:'audio/step-2.mp3', text:'Step two. The command-line benchmark engine...' },
+      'step-3': { file:'audio/step-3.mp3', text:'Step three. The interactive web simulator...' },
+      'step-4': { file:'audio/step-4.mp3', text:'Step four. The summary.' },
+    };
+    let activeAudio = null, activeSection = null, chainQueue = [];
+    function clearActive(){
+      if (activeSection){ activeSection.classList.remove('narrating'); activeSection=null; }
+      if (activeAudio){ activeAudio.pause(); activeAudio.currentTime=0; activeAudio=null; }
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }
+    function highlight(el){
+      if (activeSection) activeSection.classList.remove('narrating');
+      activeSection = el;
+      el.classList.add('narrating');
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+    function speakFallback(text, onDone){
+      if (!('speechSynthesis' in window)){ onDone&&onDone(); return; }
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.04; u.pitch = 1;
+      u.onend = ()=> onDone&&onDone();
+      u.onerror = ()=> onDone&&onDone();
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }
+    function narrate(key, onDone){
+      const conf = NARRATION[key]; if (!conf) { onDone&&onDone(); return; }
+      const section = document.querySelector(`[data-narrate="${key}"]`);
+      if (section) highlight(section);
+      const audio = new Audio(conf.file);
+      activeAudio = audio;
+      audio.play().then(()=>{
+        audio.onended = ()=>{ clearActive(); onDone&&onDone(); };
+        audio.onerror = ()=>{ speakFallback(conf.text, ()=>{ clearActive(); onDone&&onDone(); }); };
+      }).catch(()=>{
+        // autoplay blocked or file unreachable → use TTS fallback
+        speakFallback(conf.text, ()=>{ clearActive(); onDone&&onDone(); });
+      });
+    }
+    document.querySelectorAll('[data-narrate-btn]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        clearActive(); chainQueue=[];
+        narrate(btn.dataset.narrateBtn);
+      });
+    });
+    document.getElementById('readAll').addEventListener('click', ()=>{
+      clearActive();
+      chainQueue = ['intro','step-1','step-2','step-3','step-4'];
+      const next = ()=>{ if (!chainQueue.length) return; const k=chainQueue.shift(); narrate(k, next); };
+      next();
+    });
+
+    /* ---------- Reveal on scroll ---------- */
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); });
+    }, { threshold:0.12 });
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    console.log('%c'+LLM, 'color:#a78bfa;font-weight:700;font-size:13px');
+  })();
+  </script>
+</body>
+</html>

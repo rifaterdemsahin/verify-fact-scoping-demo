@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap for the live GitHub Pages deployment
+Sitemap: https://rifaterdemsahin.github.io/verify-fact-scoping-demo/sitemap.xml

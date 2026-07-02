@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="Inter, Segoe UI, sans-serif" role="img" aria-label="Step 4 — system summary">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06121f"/><stop offset="1" stop-color="#0a1f17"/>
+    </linearGradient>
+    <marker id="ar4" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#34d399"/>
+    </marker>
+  </defs>
+  <rect width="960" height="600" fill="url(#bg4)"/>
+  <text x="480" y="46" text-anchor="middle" font-size="26" font-weight="800" fill="#f8fafc">🏁 STEP 4 · Least-Privilege Wins</text>
+  <text x="480" y="74" text-anchor="middle" font-size="15" fill="#94a3b8">System summary · WHY scoped tools beat full web access or total delegation</text>
+
+  <!-- Central principle -->
+  <rect x="250" y="108" width="460" height="92" rx="16" fill="#0b1f17" stroke="#34d399" stroke-width="2"/>
+  <text x="480" y="138" text-anchor="middle" font-size="17" font-weight="800" fill="#86efac">🛡️ Give the narrow agent a NARROW tool</text>
+  <text x="480" y="162" text-anchor="middle" font-size="13" fill="#a7f3d0">verify_fact = read-only · bounded · no exploration drift</text>
+  <text x="480" y="182" text-anchor="middle" font-size="13" fill="#a7f3d0">Heavy research stays with the dedicated web search agent.</text>
+
+  <!-- Three options -->
+  <g font-size="13">
+    <rect x="40" y="232" width="280" height="200" rx="14" fill="#2a1414" stroke="#f87171" stroke-width="2"/>
+    <text x="180" y="260" text-anchor="middle" font-weight="800" fill="#fca5a5">❌ Option A · Delegate all</text>
+    <text x="180" y="284" text-anchor="middle" fill="#fecaca">Every check bounces to the</text>
+    <text x="180" y="302" text-anchor="middle" fill="#fecaca">coordinator. +40% latency,</text>
+    <text x="180" y="320" text-anchor="middle" fill="#fecaca">+2-3 round trips / task.</text>
+    <text x="180" y="356" text-anchor="middle" fill="#f87171" font-weight="700">→ the anti-pattern</text>
+    <text x="180" y="410" text-anchor="middle" fill="#94a3b8" font-size="11">tokens 53 500 · slow</text>
+
+    <rect x="340" y="232" width="280" height="200" rx="14" fill="#2a2410" stroke="#facc15" stroke-width="2"/>
+    <text x="480" y="260" text-anchor="middle" font-weight="800" fill="#fde68a">⚠️ Option D · Full web access</text>
+    <text x="480" y="284" text-anchor="middle" fill="#fef08a">Breaks the agent's narrow</text>
+    <text x="480" y="302" text-anchor="middle" fill="#fef08a">design scope. Risks prompt</text>
+    <text x="480" y="320" text-anchor="middle" fill="#fef08a">dilution &amp; infinite loops.</text>
+    <text x="480" y="356" text-anchor="middle" fill="#facc15" font-weight="700">→ unsafe scope</text>
+    <text x="480" y="410" text-anchor="middle" fill="#94a3b8" font-size="11">unbounded capability</text>
+
+    <rect x="640" y="232" width="280" height="200" rx="14" fill="#0b1f17" stroke="#34d399" stroke-width="2"/>
+    <text x="780" y="260" text-anchor="middle" font-weight="800" fill="#6ee7b7">✅ Answer · Scoped tool</text>
+    <text x="780" y="284" text-anchor="middle" fill="#a7f3d0">verify_fact for the 85%</text>
+    <text x="780" y="302" text-anchor="middle" fill="#a7f3d0">trivial checks; coordinator</text>
+    <text x="780" y="320" text-anchor="middle" fill="#a7f3d0">kept for the 15% deep dives.</text>
+    <text x="780" y="356" text-anchor="middle" fill="#34d399" font-weight="700">→ fast &amp; reliable</text>
+    <text x="780" y="410" text-anchor="middle" fill="#94a3b8" font-size="11">tokens 15 070 · −71.8%</text>
+
+    <path d="M640,332 L600,332" stroke="#34d399" stroke-width="3" marker-end="url(#ar4)"/>
+  </g>
+
+  <!-- Outcomes ribbon -->
+  <rect x="40" y="464" width="880" height="104" rx="14" fill="#060b16" stroke="#334155"/>
+  <text x="480" y="490" text-anchor="middle" font-size="15" font-weight="700" fill="#7dd3fc">🏆 Net Outcome</text>
+  <g font-size="14">
+    <text x="120" y="520" fill="#fca5a5">25 →</text><text x="178" y="520" fill="#6ee7b7" font-weight="700">4 interventions (−84%)</text>
+    <text x="120" y="546" fill="#fca5a5">21.5s →</text><text x="200" y="546" fill="#6ee7b7" font-weight="700">5.1s latency (−76%)</text>
+    <text x="540" y="520" fill="#fca5a5">53 500 →</text><text x="630" y="520" fill="#6ee7b7" font-weight="700">15 070 input tokens (−71.8%)</text>
+    <text x="540" y="546" fill="#a7f3d0">100% reliability preserved ✅</text>
+  </g>
+</svg>

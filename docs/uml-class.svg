@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 660" font-family="Inter, Segoe UI, sans-serif" role="img" aria-label="UML class diagram">
+  <defs>
+    <marker id="inh" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L11,6 L0,12 Z" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    </marker>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7dd3fc"/>
+    </marker>
+    <marker id="diamond" markerWidth="12" markerHeight="12" refX="1" refY="6" orient="auto">
+      <path d="M1,6 L6,1 L11,6 L6,11 Z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="980" height="660" fill="#0a0f1f"/>
+  <text x="490" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#f8fafc">📐 UML Class Diagram — Static Structure</text>
+
+  <!-- Interface: contract -->
+  <g>
+    <rect x="330" y="70" width="320" height="96" rx="8" fill="#0b1f2a" stroke="#38bdf8" stroke-width="2"/>
+    <text x="490" y="92" text-anchor="middle" font-size="12" fill="#7dd3fc" font-style="italic">«interface» SynthesisAgent</text>
+    <line x1="330" y1="100" x2="650" y2="100" stroke="#38bdf8"/>
+    <text x="346" y="120" font-size="12" fill="#cbd5e1">+ synthesize(task, ctx) : Result</text>
+    <text x="346" y="140" font-size="12" fill="#cbd5e1">  → { status, pending, findings, attemptLog }</text>
+    <text x="346" y="158" font-size="11" fill="#94a3b8">duck-typed · interchangeable by coordinator</text>
+  </g>
+
+  <!-- Naive -->
+  <g>
+    <rect x="40" y="220" width="300" height="120" rx="8" fill="#1a0f12" stroke="#f87171" stroke-width="2"/>
+    <text x="190" y="244" text-anchor="middle" font-size="14" font-weight="700" fill="#fca5a5">NaiveSynthesisAgent ❌</text>
+    <line x1="40" y1="252" x2="340" y2="252" stroke="#f87171"/>
+    <text x="56" y="272" font-size="11.5" fill="#fecaca">- no local capability</text>
+    <text x="56" y="296" font-size="11.5" fill="#fecaca">+ synthesize(): bounces EVERY</text>
+    <text x="56" y="312" font-size="11.5" fill="#fecaca">  claim back to the coordinator</text>
+    <text x="56" y="330" font-size="11.5" fill="#94a3b8">cost: +1900 tok / round trip</text>
+  </g>
+
+  <!-- Resilient -->
+  <g>
+    <rect x="640" y="220" width="300" height="120" rx="8" fill="#0b1f17" stroke="#34d399" stroke-width="2"/>
+    <text x="790" y="244" text-anchor="middle" font-size="14" font-weight="700" fill="#6ee7b7">ResilientSynthesisAgent ✅</text>
+    <line x1="640" y1="252" x2="940" y2="252" stroke="#34d399"/>
+    <text x="656" y="272" font-size="11.5" fill="#a7f3d0">- verifyFact : scoped tool</text>
+    <text x="656" y="296" font-size="11.5" fill="#a7f3d0">+ synthesize(): resolves 85% locally,</text>
+    <text x="656" y="312" font-size="11.5" fill="#a7f3d0">  escalates only complex subset</text>
+    <text x="656" y="330" font-size="11.5" fill="#94a3b8">cost: 70 tok / local check</text>
+  </g>
+
+  <!-- inheritance arrows to interface -->
+  <path d="M190,220 L190,200 L490,200 L490,166" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#inh)"/>
+  <path d="M790,220 L790,200 L490,200" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <!-- Coordinator -->
+  <g>
+    <rect x="370" y="360" width="260" height="110" rx="8" fill="#111827" stroke="#a78bfa" stroke-width="2"/>
+    <text x="500" y="384" text-anchor="middle" font-size="14" font-weight="700" fill="#c4b5fd">Coordinator</text>
+    <line x1="370" y1="392" x2="630" y2="392" stroke="#a78bfa"/>
+    <text x="386" y="412" font-size="11.5" fill="#ddd6fe">+ run(task, agent) : Result</text>
+    <text x="386" y="432" font-size="11.5" fill="#ddd6fe">  brokers hand-offs, MAX_ROUNDS</text>
+    <text x="386" y="452" font-size="11.5" fill="#ddd6fe">  circuit breaker, charges overhead</text>
+  </g>
+  <path d="M340,280 L300,360" fill="none" stroke="#7dd3fc" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <path d="M640,280 L600,360" fill="none" stroke="#7dd3fc" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="312" y="330" font-size="10" fill="#7dd3fc">drives</text>
+
+  <!-- WebSearchService -->
+  <g>
+    <rect x="40" y="490" width="270" height="92" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+    <text x="175" y="514" text-anchor="middle" font-size="13" font-weight="700" fill="#c7d2fe">WebSearchService</text>
+    <line x1="40" y1="522" x2="310" y2="522" stroke="#818cf8"/>
+    <text x="56" y="542" font-size="11.5" fill="#e0e7ff">+ search(subject) : {value, citations}</text>
+    <text x="56" y="562" font-size="11.5" fill="#94a3b8">heavy · reached via coordinator only</text>
+  </g>
+  <path d="M250,470 L200,490" fill="none" stroke="#818cf8" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+  <!-- LocalFactDatabase + verify_fact -->
+  <g>
+    <rect x="670" y="490" width="270" height="92" rx="8" fill="#0c2a23" stroke="#34d399" stroke-width="2"/>
+    <text x="805" y="514" text-anchor="middle" font-size="13" font-weight="700" fill="#a7f3d0">LocalFactDatabase</text>
+    <line x1="670" y1="522" x2="940" y2="522" stroke="#34d399"/>
+    <text x="686" y="542" font-size="11.5" fill="#bbf7d0">+ lookup(subject) : {value, conf}</text>
+    <text x="686" y="562" font-size="11.5" fill="#94a3b8">read-only · bounded · backs verify_fact()</text>
+  </g>
+  <path d="M820,340 L820,490" fill="none" stroke="#34d399" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="828" y="430" font-size="10" fill="#6ee7b7">createVerifyFactTool()</text>
+
+  <!-- Errors -->
+  <g>
+    <rect x="350" y="500" width="290" height="82" rx="8" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
+    <text x="495" y="522" text-anchor="middle" font-size="13" font-weight="700" fill="#fcd34d">Error Seams</text>
+    <text x="366" y="544" font-size="11.5" fill="#fde68a">TransientError { recoverable:true }</text>
+    <text x="366" y="564" font-size="11.5" fill="#fde68a">FatalError { recoverable:false }</text>
+  </g>
+
+  <text x="490" y="630" text-anchor="middle" font-size="12" fill="#64748b">Dependencies flow one way: domain → infrastructure → subagents → coordinator → demo</text>
+</svg>

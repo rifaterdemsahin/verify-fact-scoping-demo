@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://rifaterdemsahin.github.io/verify-fact-scoping-demo/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://rifaterdemsahin.github.io/verify-fact-scoping-demo/docs/step-images/step-0.svg</image:loc>
+      <image:title>The verification bottleneck</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://rifaterdemsahin.github.io/verify-fact-scoping-demo/docs/uml-workflow.svg</image:loc>
+      <image:title>Runtime sequence diagram</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://rifaterdemsahin.github.io/verify-fact-scoping-demo/docs/uml-class.svg</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rifaterdemsahin.github.io/verify-fact-scoping-demo/docs/uml-workflow.svg</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>

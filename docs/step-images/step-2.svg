@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="Inter, Segoe UI, sans-serif" role="img" aria-label="Step 2 — CLI benchmark engine">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f1f"/><stop offset="1" stop-color="#14101f"/>
+    </linearGradient>
+    <marker id="ar2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="960" height="600" fill="url(#bg2)"/>
+  <text x="480" y="46" text-anchor="middle" font-size="26" font-weight="800" fill="#f8fafc">⚡ STEP 2 · CLI Benchmark Engine</text>
+  <text x="480" y="74" text-anchor="middle" font-size="15" fill="#94a3b8">HOW both architectures run the same workload side-by-side</text>
+
+  <!-- Two parallel pipelines -->
+  <g font-size="14">
+    <!-- Naive lane -->
+    <rect x="40" y="110" width="420" height="360" rx="16" fill="#1a0f12" stroke="#f87171" stroke-width="2"/>
+    <text x="250" y="138" text-anchor="middle" font-size="17" font-weight="800" fill="#fca5a5">❌ NAIVE</text>
+    <rect x="70" y="158" width="360" height="40" rx="8" fill="#2a1418" stroke="#f87171"/>
+    <text x="250" y="183" text-anchor="middle" fill="#fecaca">Coordinator.run(task, NaiveAgent)</text>
+    <g fill="#fecaca" font-size="12.5">
+      <text x="70" y="225">claim 1 → 🤝 hand-off → 🌐 search → ↩️ replay</text>
+      <text x="70" y="248">claim 2 → 🤝 hand-off → 🌐 search → ↩️ replay</text>
+      <text x="70" y="271">claim 3 → 🤝 hand-off → 🌐 search → ↩️ replay</text>
+      <text x="70" y="294">… repeated for every claim …</text>
+    </g>
+    <rect x="70" y="316" width="170" height="40" rx="8" fill="#2a1418" stroke="#f87171"/>
+    <text x="155" y="341" text-anchor="middle" fill="#fecaca">interventions = 25</text>
+    <rect x="260" y="316" width="170" height="40" rx="8" fill="#2a1418" stroke="#f87171"/>
+    <text x="345" y="341" text-anchor="middle" fill="#fecaca">tokens = 53 500</text>
+    <rect x="70" y="372" width="360" height="36" rx="8" fill="#3a1118" stroke="#f87171"/>
+    <text x="250" y="395" text-anchor="middle" fill="#fff" font-weight="700">latency 21.45 s · +40% penalty</text>
+    <text x="250" y="446" text-anchor="middle" font-size="12" fill="#94a3b8">--naive flag</text>
+
+    <!-- Resilient lane -->
+    <rect x="500" y="110" width="420" height="360" rx="16" fill="#0b1f17" stroke="#34d399" stroke-width="2"/>
+    <text x="710" y="138" text-anchor="middle" font-size="17" font-weight="800" fill="#6ee7b7">✅ RESILIENT</text>
+    <rect x="530" y="158" width="360" height="40" rx="8" fill="#0c2a23" stroke="#34d399"/>
+    <text x="710" y="183" text-anchor="middle" fill="#a7f3d0">Coordinator.run(task, ResilientAgent + verify_fact)</text>
+    <g fill="#a7f3d0" font-size="12.5">
+      <text x="530" y="225">21 simple claims → 🔍 verify_fact (local, 70 tok)</text>
+      <text x="530" y="248">→ resolved in-tool, no round trip</text>
+      <text x="530" y="271">4 complex claims → 🤝 hand-off → 🌐 search</text>
+      <text x="530" y="294">→ only the subset that genuinely needs it</text>
+    </g>
+    <rect x="530" y="316" width="170" height="40" rx="8" fill="#0c2a23" stroke="#34d399"/>
+    <text x="615" y="341" text-anchor="middle" fill="#a7f3d0">interventions = 4</text>
+    <rect x="720" y="316" width="170" height="40" rx="8" fill="#0c2a23" stroke="#34d399"/>
+    <text x="805" y="341" text-anchor="middle" fill="#a7f3d0">tokens = 15 070</text>
+    <rect x="530" y="372" width="360" height="36" rx="8" fill="#0e3a2c" stroke="#34d399"/>
+    <text x="710" y="395" text-anchor="middle" fill="#fff" font-weight="700">latency 5.07 s · −76% vs naive</text>
+    <text x="710" y="446" text-anchor="middle" font-size="12" fill="#94a3b8">--resilient flag</text>
+  </g>
+
+  <path d="M460,300 L500,300" stroke="#94a3b8" stroke-width="3" marker-end="url(#ar2)"/>
+  <rect x="40" y="496" width="880" height="76" rx="14" fill="#0b1220" stroke="#334155"/>
+  <text x="480" y="524" text-anchor="middle" font-size="15" font-weight="700" fill="#38bdf8">🪙 Input Token Scoreboard printed at the foot of every run</text>
+  <text x="480" y="548" text-anchor="middle" font-size="13" fill="#cbd5e1">node demo.js · node demo.js --naive · node demo.js --resilient</text>
+</svg>
